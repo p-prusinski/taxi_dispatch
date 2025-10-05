@@ -1,4 +1,4 @@
-# wydra
+# taxi dispatch
 
 ### run formatter & mypy
 ```shell
@@ -13,12 +13,4 @@ docker compose exec dispatch alembic revision --autogenerate -m "file_name"
 ####
 ```shell
 docker compose exec dispatch alembic upgrade head
-```
-
-
-## CLI
-
-### Auth token
-```shell
-docker compsoe exec dispatch python cli.py token -e 365 -r admin
 ```
