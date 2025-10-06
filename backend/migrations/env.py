@@ -5,6 +5,7 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import create_async_engine
 
+import taxis.models  # noqa: F401
 from config import settings
 from alembic import context
 from database import Base
