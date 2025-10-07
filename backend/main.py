@@ -11,6 +11,7 @@ app = FastAPI(
 app.include_router(taxis_router)
 add_pagination(app)
 
+
 @app.get("/")
 async def root() -> dict[str, str]:
     return {"message": "Hello World"}

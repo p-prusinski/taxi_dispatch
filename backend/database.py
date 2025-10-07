@@ -1,17 +1,16 @@
 import logging
 from collections.abc import AsyncGenerator, Sequence
-
-from sqlalchemy.ext.asyncio import (
-    create_async_engine,
-    async_sessionmaker,
-    AsyncSession,
-    AsyncAttrs,
-)
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import select
 from typing import Self
 
 from config import settings
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import (
+    AsyncAttrs,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
+from sqlalchemy.orm import DeclarativeBase
 
 logger = logging.getLogger(__name__)
 
