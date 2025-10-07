@@ -1,15 +1,14 @@
 import asyncio
 from logging.config import fileConfig
 
+import taxis.models  # noqa: F401
+from alembic import context
+from config import settings
+from database import Base
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import create_async_engine
-
-import taxis.models  # noqa: F401
-from config import settings
-from alembic import context
-from database import Base
-
+from sqlalchemy.util.concurrency import await_only, in_greenlet
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -56,14 +55,7 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
-def do_run_migrations(connection: Connection) -> None:
-    context.configure(connection=connection, target_metadata=target_metadata)
-    with context.begin_transaction():
-        context.run_migrations()
-
-
-async def run_migrations_online() -> None:
-    """Run migrations in 'online' mode (with async DB)."""
+async def run_async_migrations() -> None:
     connectable = create_async_engine(
         config.get_main_option("sqlalchemy.url") or settings.db_config,
         poolclass=pool.NullPool,
@@ -71,9 +63,29 @@ async def run_migrations_online() -> None:
 
     async with connectable.connect() as connection:
         await connection.run_sync(do_run_migrations)
+    await connectable.dispose()
+
+
+def do_run_migrations(connection: Connection) -> None:
+    context.configure(
+        connection=connection,
+        target_metadata=target_metadata,
+        compare_type=True,
+    )
+    with context.begin_transaction():
+        context.run_migrations()
+
+
+def run_migrations_online() -> None:
+    """Run migrations in 'online' mode (with async DB)."""
+
+    if in_greenlet():
+        await_only(run_async_migrations())
+    else:
+        asyncio.run(run_async_migrations())
 
 
 if context.is_offline_mode():
     run_migrations_offline()
 else:
-    asyncio.run(run_migrations_online())
+    run_migrations_online()
