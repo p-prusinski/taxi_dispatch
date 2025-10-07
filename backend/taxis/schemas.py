@@ -1,11 +1,12 @@
-from typing import Annotated
-from pydantic import BaseModel, Field
 from enum import Enum
+from typing import Annotated
+
+from pydantic import BaseModel, Field
 
 Coordinate = Annotated[
     int,
     Field(
-        gte=0,
+        ge=0,
         le=100,
         examples=[90],
     ),
@@ -28,7 +29,7 @@ class TaxiCreate(TaxiBase):
 
 
 class TaxiResponse(TaxiBase):
-    pass
+    id: int
 
 
 class TaxiListResponse(TaxiBase):

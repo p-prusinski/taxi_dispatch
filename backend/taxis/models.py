@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import database
 from sqlalchemy import Integer
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_utils import generic_repr
-import database
+
 from .schemas import TaxiStatus
 
 

@@ -1,12 +1,14 @@
+from typing import Annotated, Any
+
+from database import get_db
 from fastapi import APIRouter, Depends
+from fastapi_pagination import Page
+from fastapi_pagination.ext.sqlalchemy import apaginate
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from database import get_db
-from .schemas import TaxiResponse, TaxiCreate, TaxiListResponse
+
 from .models import Taxi
-from fastapi_pagination import Page
-from fastapi_pagination.ext.sqlalchemy import paginate
-from typing import Annotated, Any
+from .schemas import TaxiCreate, TaxiListResponse, TaxiResponse
 
 router = APIRouter(prefix="/taxis", tags=["taxis"])
 
@@ -22,4 +24,4 @@ async def register_taxi(
 async def get_taxis(
     db_session: Annotated[AsyncSession, Depends(get_db)],
 ) -> Any:
-    return await paginate(db_session, select(Taxi).order_by(Taxi.status.asc()))
+    return await apaginate(db_session, select(Taxi).order_by(Taxi.status.asc()))
