@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import database
 from fastapi import HTTPException, status
-from sqlalchemy import Integer, select, func
+from sqlalchemy import Integer, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_utils import generic_repr

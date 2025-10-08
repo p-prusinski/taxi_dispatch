@@ -1,7 +1,8 @@
+import random
+
 import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
-import random
 from taxis.models import Taxi
 from taxis.schemas import TaxiStatus
 
@@ -12,7 +13,7 @@ async def test_order_trip(
 ) -> None:
     await Taxi(x=10, y=15).create(db_session)
 
-    monkeypatch.setattr(random, "randint", lambda _, _2: 2)
+    monkeypatch.setattr(random, "choices", lambda _, **kwargs: [2] * kwargs["k"])
 
     body = {"x_start": 0, "y_start": 2, "x_destination": 13, "y_destination": 16}
     response = await client.post("/trips", json=body)

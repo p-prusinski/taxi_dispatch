@@ -1,9 +1,9 @@
 from database import get_db
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from taxis.models import Taxi
 from taxis.schemas import TaxiStatus
+
 from .models import Trip
 from .schemas import TripCreate, TripResponse
 

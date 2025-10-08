@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import random
+
 import database
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_utils import generic_repr
-import random
 from taxis.models import Taxi
 
 
@@ -37,12 +38,12 @@ class Trip(database.Base):
         travel_distance = cls.calculate_manhattan_distance(
             x_start, y_start, x_destination, y_destination
         )
-        travel_time = travel_distance * random.randint(1, 3)
+        travel_time = sum(random.choices(range(1, 3), k=travel_distance))
 
         waiting_distance = cls.calculate_manhattan_distance(
             x_start, y_start, taxi.x, taxi.y
         )
-        waiting_time = waiting_distance * random.randint(1, 3)
+        waiting_time = sum(random.choices(range(1, 3), k=waiting_distance))
 
         return cls(
             taxi_id=taxi.pk,
