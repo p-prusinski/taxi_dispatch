@@ -25,3 +25,10 @@ async def get_taxis(
     db_session: Annotated[AsyncSession, Depends(get_db)],
 ) -> Any:
     return await apaginate(db_session, select(Taxi).order_by(Taxi.status.asc()))
+
+
+@router.patch("/{pk}", response_model=TaxiResponse)
+async def update_location_and_status_available(
+    pk: int, req: TaxiCreate, db_session: Annotated[AsyncSession, Depends(get_db)]
+) -> Taxi:
+    return await Taxi.update_taxi_available_and_location(db_session, pk, req.x, req.y)

@@ -21,7 +21,6 @@ class TaxiStatus(str, Enum):
 class TaxiBase(BaseModel):
     x: Coordinate
     y: Coordinate
-    status: TaxiStatus
 
 
 class TaxiCreate(TaxiBase):
@@ -29,8 +28,10 @@ class TaxiCreate(TaxiBase):
 
 
 class TaxiResponse(TaxiBase):
-    id: int
+    status: TaxiStatus
+    pk: int
 
 
 class TaxiListResponse(TaxiBase):
-    id: int
+    status: TaxiStatus
+    pk: int
