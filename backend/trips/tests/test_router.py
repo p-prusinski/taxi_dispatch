@@ -4,7 +4,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import random
 from taxis.models import Taxi
 from taxis.schemas import TaxiStatus
-from trips.models import Trip
 
 
 @pytest.mark.asyncio
