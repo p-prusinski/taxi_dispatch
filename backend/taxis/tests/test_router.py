@@ -30,7 +30,7 @@ async def test_get_taxis(db_session: AsyncSession, client: AsyncClient) -> None:
 @pytest.mark.asyncio
 async def test_register_taxi(db_session: AsyncSession, client: AsyncClient) -> None:
     body = {"x": 90, "y": 90}
-    response = await client.post("/taxis/register", json=body)
+    response = await client.post("/taxis", json=body)
     assert response.status_code == 200, response.text
     assert response.json() == {"x": 90, "y": 90, "status": "AVAILABLE", "pk": 1}
 
@@ -40,7 +40,7 @@ async def test_register_taxi_wrong_coords(
     db_session: AsyncSession, client: AsyncClient
 ) -> None:
     body = {"x": -1, "y": 110}
-    response = await client.post("/taxis/register", json=body)
+    response = await client.post("/taxis", json=body)
     assert response.status_code == 422, response.text
     assert response.json() == {
         "detail": [

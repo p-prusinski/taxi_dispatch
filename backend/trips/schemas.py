@@ -1,4 +1,4 @@
-from pydantic import BaseModel, PositiveInt, computed_field
+from pydantic import BaseModel
 from taxis.schemas import Coordinate
 
 
@@ -18,7 +18,3 @@ class TripResponse(TripBase):
     waiting_time_minutes: int
     travel_time_minutes: int
 
-
-
-# class TripResponse(BaseModel):
-#     msg: str

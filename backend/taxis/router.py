@@ -13,7 +13,7 @@ from .schemas import TaxiCreate, TaxiListResponse, TaxiResponse
 router = APIRouter(prefix="/taxis", tags=["taxis"])
 
 
-@router.post("/register", response_model=TaxiResponse)
+@router.post("", response_model=TaxiResponse)
 async def register_taxi(
     req: TaxiCreate, db_session: AsyncSession = Depends(get_db)
 ) -> Taxi:

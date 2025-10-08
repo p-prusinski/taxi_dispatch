@@ -10,7 +10,7 @@ from .schemas import TripCreate, TripResponse
 router = APIRouter(prefix="/trips", tags=["trips"])
 
 
-@router.post("/order", response_model=TripResponse)
+@router.post("", response_model=TripResponse)
 async def order_trip(
     req: TripCreate, db_session: AsyncSession = Depends(get_db)
 ) -> Trip:
