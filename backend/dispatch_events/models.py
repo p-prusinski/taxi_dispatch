@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 import datetime as dt
-from typing import Any
 
 import database
 from fastapi import HTTPException, status
-from sqlalchemy import DateTime, Select, select
+from sqlalchemy import DateTime, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_utils import generic_repr
@@ -26,12 +25,6 @@ class Event(database.Base):
         DateTime(timezone=True), default=lambda: dt.datetime.now(dt.UTC)
     )
 
-    @classmethod
-    def sort_by_created(cls, query: Select[Any], order: str) -> Select[Any]:
-        if order == "created_at":
-            return query.order_by(cls.created_at.asc())
-        return query.order_by(cls.created_at.desc())
-
     @staticmethod
     async def get_by_pk_or_404(db_session: AsyncSession, pk: int) -> Event:
         event_scalar = await db_session.scalars(
@@ -43,3 +36,18 @@ class Event(database.Base):
                 status_code=status.HTTP_404_NOT_FOUND, detail=f"Event({pk=}) not found"
             )
         return event
+
+
+async def add_event(
+    db_session: AsyncSession,
+    event_type: EventType,
+    taxi_id: int | None = None,
+    trip_id: int | None = None,
+    user_id: int | None = None,
+) -> Event:
+    return await Event(
+        event_type=event_type,
+        taxi_id=taxi_id,
+        trip_id=trip_id,
+        user_id=user_id,
+    ).create(db_session)
