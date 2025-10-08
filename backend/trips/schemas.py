@@ -17,4 +17,3 @@ class TripResponse(TripBase):
     taxi_id: int
     waiting_time_minutes: int
     travel_time_minutes: int
-
