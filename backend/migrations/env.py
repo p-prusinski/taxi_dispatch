@@ -2,6 +2,7 @@ import asyncio
 from logging.config import fileConfig
 
 import taxis.models  # noqa: F401
+import trips.models  # noqa: F401
 from alembic import context
 from config import settings
 from database import Base

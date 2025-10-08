@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi_pagination import add_pagination
 from taxis.router import router as taxis_router
+from trips.router import router as trips_router
 
 app = FastAPI(
     title="Taxi",
@@ -9,6 +10,7 @@ app = FastAPI(
 )
 
 app.include_router(taxis_router)
+app.include_router(trips_router)
 add_pagination(app)
 
 
