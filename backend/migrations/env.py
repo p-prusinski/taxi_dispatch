@@ -1,6 +1,7 @@
 import asyncio
 from logging.config import fileConfig
 
+import dispatch_events.models  # noqa: F401
 import taxis.models  # noqa: F401
 import trips.models  # noqa: F401
 from alembic import context
