@@ -4,7 +4,7 @@ import database
 from dispatch_events.models import add_event
 from dispatch_events.schemas import EventType
 from fastapi import HTTPException, status
-from sqlalchemy import Integer, func, select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_utils import generic_repr
@@ -19,7 +19,8 @@ class Taxi(database.Base):
     pk: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     status: Mapped[str] = mapped_column(default=TaxiStatus.AVAILABLE, nullable=False)
     x: Mapped[int] = mapped_column(nullable=False)
-    y: Mapped[int] = mapped_column(Integer, nullable=False)
+    y: Mapped[int] = mapped_column(nullable=False)
+    callback_url: Mapped[str] = mapped_column(nullable=False)
 
     @staticmethod
     async def get_nearest_taxi(
@@ -62,3 +63,10 @@ class Taxi(database.Base):
         )
         await db_session.commit()
         return taxi
+
+    @staticmethod
+    async def delete_taxi(db_session: AsyncSession, taxi_id: int) -> dict[str, str]:
+        taxi = await Taxi.get_by_pk_or_404(db_session, taxi_id)
+        await taxi.delete(db_session)
+        await db_session.commit()
+        return {"detail": f"Taxi {taxi_id} deleted successfully"}

@@ -12,18 +12,27 @@ from taxis.schemas import TaxiStatus
 
 @pytest.mark.asyncio
 async def test_get_taxis(db_session: AsyncSession, client: AsyncClient) -> None:
-    await Taxi(
-        x=1,
-        y=12,
-    ).create(db_session)
-    await Taxi(x=0, y=100).create(db_session)
+    await Taxi(x=1, y=12, callback_url="http://mockurl:8080").create(db_session)
+    await Taxi(x=0, y=100, callback_url="http://mockurl:8080").create(db_session)
 
     response = await client.get("/taxis")
     assert response.status_code == 200, response.text
     assert response.json() == {
         "items": [
-            {"x": 1, "y": 12, "status": "AVAILABLE", "pk": 1},
-            {"x": 0, "y": 100, "status": "AVAILABLE", "pk": 2},
+            {
+                "x": 1,
+                "y": 12,
+                "status": "AVAILABLE",
+                "pk": 1,
+                "callback_url": "http://mockurl:8080",
+            },
+            {
+                "x": 0,
+                "y": 100,
+                "status": "AVAILABLE",
+                "pk": 2,
+                "callback_url": "http://mockurl:8080",
+            },
         ],
         "total": 2,
         "page": 1,
@@ -34,17 +43,23 @@ async def test_get_taxis(db_session: AsyncSession, client: AsyncClient) -> None:
 
 @pytest.mark.asyncio
 async def test_register_taxi(client: AsyncClient) -> None:
-    body = {"x": 90, "y": 90}
+    body = {"x": 90, "y": 90, "callback_url": "http://mockurl:8080"}
     response = await client.post("/taxis", json=body)
     assert response.status_code == 200, response.text
-    assert response.json() == {"x": 90, "y": 90, "status": "AVAILABLE", "pk": 1}
+    assert response.json() == {
+        "x": 90,
+        "y": 90,
+        "status": "AVAILABLE",
+        "pk": 1,
+        "callback_url": "http://mockurl:8080/",
+    }
 
 
 @pytest.mark.asyncio
 async def test_register_taxi_wrong_coords(
     db_session: AsyncSession, client: AsyncClient
 ) -> None:
-    body = {"x": -1, "y": 110}
+    body = {"x": -1, "y": 110, "callback_url": "http://mockurl:8080"}
     response = await client.post("/taxis", json=body)
     assert response.status_code == 422, response.text
     assert response.json() == {
@@ -79,18 +94,28 @@ async def test_update_taxi_returns_404(client: AsyncClient) -> None:
 async def test_update_taxi_updates_status_and_location(
     db_session: AsyncSession, client: AsyncClient
 ) -> None:
-    await Taxi(x=0, y=0, status=TaxiStatus.BUSY).create(db_session)
+    await Taxi(
+        x=0, y=0, status=TaxiStatus.BUSY, callback_url="http://mockurl:8080"
+    ).create(db_session)
     body = {"x": 100, "y": 100}
     response = await client.patch("/taxis/1", json=body)
     assert response.status_code == 200, response.text
-    assert response.json() == {"x": 100, "y": 100, "status": "AVAILABLE", "pk": 1}
+    assert response.json() == {
+        "x": 100,
+        "y": 100,
+        "status": "AVAILABLE",
+        "pk": 1,
+        "callback_url": "http://mockurl:8080/",
+    }
 
 
 @pytest.mark.asyncio
 async def test_update_taxi_creates_event(
     db_session: AsyncSession, client: AsyncClient, dt_mock: dt.datetime
 ) -> None:
-    await Taxi(x=0, y=0, status=TaxiStatus.BUSY).create(db_session)
+    await Taxi(
+        x=0, y=0, status=TaxiStatus.BUSY, callback_url="http://mockurl:8080"
+    ).create(db_session)
     body = {"x": 100, "y": 100}
     response = await client.patch("/taxis/1", json=body)
     assert response.status_code == 200, response.text
@@ -109,7 +134,7 @@ async def test_update_taxi_creates_event(
 async def test_create_taxi_creates_event(
     db_session: AsyncSession, client: AsyncClient, dt_mock: dt.datetime
 ) -> None:
-    body = {"x": 90, "y": 90}
+    body = {"x": 90, "y": 90, "callback_url": "http://mockurl:8080"}
     response = await client.post("/taxis", json=body)
     assert response.status_code == 200, response.text
 
@@ -122,3 +147,13 @@ async def test_create_taxi_creates_event(
         "created_at": dt_mock,
         "pk": 1,
     }
+
+
+@pytest.mark.asyncio
+async def test_delete_taxis(db_session: AsyncSession, client: AsyncClient) -> None:
+    await Taxi(x=1, y=12, callback_url="http://mockurl:8080").create(db_session)
+
+    response = await client.delete("/taxis/1")
+    assert response.status_code == 200, response.text
+    assert len(await Taxi.get_all(db_session)) == 0
+    assert response.json() == {"detail": "Taxi 1 deleted successfully"}
