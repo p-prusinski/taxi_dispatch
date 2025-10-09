@@ -10,10 +10,11 @@ class TripBase(BaseModel):
 
 
 class TripCreate(TripBase):
-    pass
+    user_id: int
 
 
 class TripResponse(TripBase):
     taxi_id: int
+    user_id: int
     waiting_time_minutes: int
     travel_time_minutes: int

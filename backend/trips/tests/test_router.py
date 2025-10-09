@@ -14,15 +14,22 @@ from tests.test_utils import serialize_model
 async def test_order_trip(
     db_session: AsyncSession, client: AsyncClient, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    await Taxi(x=10, y=15).create(db_session)
+    await Taxi(x=10, y=15, callback_url="http://mockurl:8080").create(db_session)
 
     monkeypatch.setattr(random, "choices", lambda _, **kwargs: [2] * kwargs["k"])
 
-    body = {"x_start": 0, "y_start": 2, "x_destination": 13, "y_destination": 16}
+    body = {
+        "user_id": 1,
+        "x_start": 0,
+        "y_start": 2,
+        "x_destination": 13,
+        "y_destination": 16,
+    }
     response = await client.post("/trips", json=body)
     assert response.status_code == 200, response.text
     assert response.json() == {
         "taxi_id": 1,
+        "user_id": 1,
         "travel_time_minutes": 54,
         "waiting_time_minutes": 46,
         "x_destination": 13,
@@ -36,9 +43,17 @@ async def test_order_trip(
 async def test_order_trip_no_taxis(
     db_session: AsyncSession, client: AsyncClient
 ) -> None:
-    await Taxi(x=10, y=15, status=TaxiStatus.BUSY).create(db_session)
+    await Taxi(
+        x=10, y=15, status=TaxiStatus.BUSY, callback_url="http://mockurl:8080"
+    ).create(db_session)
 
-    body = {"x_start": 0, "y_start": 2, "x_destination": 13, "y_destination": 16}
+    body = {
+        "user_id": 1,
+        "x_start": 0,
+        "y_start": 2,
+        "x_destination": 13,
+        "y_destination": 16,
+    }
     response = await client.post("/trips", json=body)
     assert response.status_code == 404, response.text
     assert response.json() == {
@@ -50,9 +65,15 @@ async def test_order_trip_no_taxis(
 async def test_order_trip_creates_event(
     db_session: AsyncSession, client: AsyncClient, dt_mock: dt.datetime
 ) -> None:
-    await Taxi(x=10, y=15).create(db_session)
+    await Taxi(x=10, y=15, callback_url="http://mockurl:8080").create(db_session)
 
-    body = {"x_start": 0, "y_start": 2, "x_destination": 13, "y_destination": 16}
+    body = {
+        "user_id": 1,
+        "x_start": 0,
+        "y_start": 2,
+        "x_destination": 13,
+        "y_destination": 16,
+    }
     response = await client.post("/trips", json=body)
     assert response.status_code == 200, response.text
 
@@ -60,7 +81,7 @@ async def test_order_trip_creates_event(
     assert serialize_model(event) == {
         "taxi_id": 1,
         "trip_id": 1,
-        "user_id": None,
+        "user_id": 1,
         "event_type": "taxi_assignment",
         "created_at": dt_mock,
         "pk": 1,

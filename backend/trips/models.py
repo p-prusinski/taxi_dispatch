@@ -14,7 +14,10 @@ class Trip(database.Base):
     __tablename__ = "trips"
 
     pk: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    taxi_id: Mapped[int] = mapped_column(ForeignKey("taxis.pk"), nullable=True)
+    taxi_id: Mapped[int] = mapped_column(
+        ForeignKey("taxis.pk", ondelete="SET NULL"), nullable=True
+    )
+    user_id: Mapped[int] = mapped_column(nullable=False)
     x_start: Mapped[int] = mapped_column(nullable=False)
     y_start: Mapped[int] = mapped_column(nullable=False)
     x_destination: Mapped[int] = mapped_column(nullable=False)
@@ -29,6 +32,7 @@ class Trip(database.Base):
     @classmethod
     def create_trip(
         cls,
+        user_id: int,
         x_start: int,
         y_start: int,
         x_destination: int,
@@ -47,6 +51,7 @@ class Trip(database.Base):
 
         return cls(
             taxi_id=taxi.pk,
+            user_id=user_id,
             x_start=x_start,
             y_start=y_start,
             x_destination=x_destination,
