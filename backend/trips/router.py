@@ -6,6 +6,8 @@ from taxis.schemas import TaxiStatus
 
 from .models import Trip
 from .schemas import TripCreate, TripResponse
+from dispatch_events.models import add_event
+from dispatch_events.schemas import EventType
 
 router = APIRouter(prefix="/trips", tags=["trips"])
 
@@ -26,6 +28,14 @@ async def order_trip(
             y_destination=int(req.y_destination),
         )
         await trip.create(db_session)
+
+        # TODO ADD user_id to event
+        await add_event(
+            db_session,
+            event_type=EventType.TAXI_ASSIGNMENT,
+            taxi_id=nearest_taxi.pk,
+            trip_id=trip.pk,
+        )
         await db_session.commit()
         return trip
     raise HTTPException(

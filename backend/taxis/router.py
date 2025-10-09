@@ -9,6 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from .models import Taxi
 from .schemas import TaxiCreate, TaxiListResponse, TaxiResponse
+from dispatch_events.models import add_event
+from dispatch_events.schemas import EventType
 
 router = APIRouter(prefix="/taxis", tags=["taxis"])
 
@@ -17,7 +19,9 @@ router = APIRouter(prefix="/taxis", tags=["taxis"])
 async def register_taxi(
     req: TaxiCreate, db_session: AsyncSession = Depends(get_db)
 ) -> Taxi:
-    return await Taxi(x=req.x, y=req.y).create(db_session)
+    taxi = await Taxi(x=req.x, y=req.y).create(db_session)
+    await add_event(db_session, event_type=EventType.TAXI_REGISTER, taxi_id=taxi.pk)
+    return taxi
 
 
 @router.get("", response_model=Page[TaxiListResponse])
