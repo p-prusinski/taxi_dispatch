@@ -1,5 +1,5 @@
-from collections.abc import AsyncGenerator, Iterator
 import datetime as dt
+from collections.abc import AsyncGenerator, Iterator
 
 import pytest
 import pytest_asyncio

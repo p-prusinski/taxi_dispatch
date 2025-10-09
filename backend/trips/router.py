@@ -1,4 +1,6 @@
 from database import get_db
+from dispatch_events.models import add_event
+from dispatch_events.schemas import EventType
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from taxis.models import Taxi
@@ -6,8 +8,6 @@ from taxis.schemas import TaxiStatus
 
 from .models import Trip
 from .schemas import TripCreate, TripResponse
-from dispatch_events.models import add_event
-from dispatch_events.schemas import EventType
 
 router = APIRouter(prefix="/trips", tags=["trips"])
 

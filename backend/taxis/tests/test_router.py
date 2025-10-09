@@ -1,12 +1,13 @@
-import pytest
-from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession
 import datetime as dt
 
+import pytest
+from dispatch_events.models import Event
+from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession
 from tests.test_utils import serialize_model
+
 from taxis.models import Taxi
 from taxis.schemas import TaxiStatus
-from dispatch_events.models import Event
 
 
 @pytest.mark.asyncio

@@ -1,10 +1,11 @@
+import datetime as dt
+
 import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from dispatch_events.models import Event
 from dispatch_events.schemas import EventType
-import datetime as dt
 
 
 # Move this to test_utils if more modules use it

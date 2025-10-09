@@ -1,6 +1,8 @@
 from typing import Annotated, Any
 
 from database import get_db
+from dispatch_events.models import add_event
+from dispatch_events.schemas import EventType
 from fastapi import APIRouter, Depends
 from fastapi_pagination import Page
 from fastapi_pagination.ext.sqlalchemy import apaginate
@@ -9,8 +11,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from .models import Taxi
 from .schemas import TaxiCreate, TaxiListResponse, TaxiResponse
-from dispatch_events.models import add_event
-from dispatch_events.schemas import EventType
 
 router = APIRouter(prefix="/taxis", tags=["taxis"])
 
