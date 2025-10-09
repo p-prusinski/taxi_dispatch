@@ -6,6 +6,8 @@ Also shutting down all containers probably won't delete those taxis, so it's bes
 
 Client simulator is not implemented yet - again, lack of time. I might add it to a separate branch after work and edit this note saying these changes were post due date.
 
+PS. I also added .env files to repository to make startup smoother - obviously not something to be done on production.
+
 # taxi dispatch
 
 ### start service
