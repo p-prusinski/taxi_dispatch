@@ -69,6 +69,39 @@ async def test_order_trip_no_taxis(
     }
 
 
+@pytest.mark.asyncio
+async def test_order_trip_start_and_destination_the_same(
+    client: AsyncClient
+) -> None:
+
+    body = {
+        "user_id": 1,
+        "x_start": 10,
+        "y_start": 10,
+        "x_destination": 10,
+        "y_destination": 10,
+    }
+    response = await client.post("/trips", json=body)
+    assert response.status_code == 422, response.text
+    assert response.json() == {
+        "detail": [
+            {
+                "type": "value_error",
+                "loc": ["body"],
+                "msg": "Value error, Start coordinates must not be the same as destination coordinates",
+                "input": {
+                    "x_start": 10,
+                    "y_start": 10,
+                    "x_destination": 10,
+                    "y_destination": 10,
+                    "user_id": 1,
+                },
+                "ctx": {"error": {}},
+            }
+        ]
+    }
+
+
 @patch(f"{PATH}.send_request_to_taxi")
 @pytest.mark.asyncio
 async def test_order_trip_creates_event(
