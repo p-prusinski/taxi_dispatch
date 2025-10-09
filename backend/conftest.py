@@ -1,7 +1,9 @@
-from collections.abc import AsyncGenerator
+from collections.abc import AsyncGenerator, Iterator
+import datetime as dt
 
 import pytest
 import pytest_asyncio
+import time_machine
 from alembic import command
 from alembic.config import Config
 from config import settings
@@ -135,3 +137,10 @@ async def restart_autoincrement_pk(session: AsyncSession) -> None:
     )
     for sequence in transaction.scalars().all():
         await session.execute(text(f"ALTER SEQUENCE {sequence} RESTART WITH 1"))
+
+
+@pytest.fixture
+def dt_mock() -> Iterator[dt.datetime]:
+    date = dt.datetime(2025, 10, 10, 0, 0, 0, tzinfo=dt.UTC)
+    with time_machine.travel(date, tick=False):
+        yield date
