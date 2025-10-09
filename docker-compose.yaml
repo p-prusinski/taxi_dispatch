@@ -21,6 +21,17 @@ services:
       - PGPORT=${PGPORT}
     ports:
       - "5432:5432"
+  taxi_service:
+    build: ./taxi_service
+    env_file: ./taxi_service/.env
+    depends_on:
+      - dispatch
+    environment:
+      DISPATCH_URL: http://dispatch:8000
+      GRID_SIZE: 100
+    command: uvicorn main:app --host 0.0.0.0 --port 8080
+    ports:
+      - "8080"
 
 volumes:
   dispatch_db: {}
