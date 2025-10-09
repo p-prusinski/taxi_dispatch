@@ -24,7 +24,7 @@ class TaxiBase(BaseModel):
 
 
 class TaxiCreate(TaxiBase):
-    callback_url: str = Field(example="http://mockurl:8080")
+    callback_url: str = "http://example:8080"
 
     @field_validator("callback_url")
     @classmethod
