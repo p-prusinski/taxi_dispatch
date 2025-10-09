@@ -1,10 +1,10 @@
 import datetime as dt
 import random
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from dispatch_events.models import Event
 from httpx import AsyncClient
-from unittest.mock import AsyncMock, patch
 from sqlalchemy.ext.asyncio import AsyncSession
 from taxis.models import Taxi
 from taxis.schemas import TaxiStatus
@@ -70,10 +70,7 @@ async def test_order_trip_no_taxis(
 
 
 @pytest.mark.asyncio
-async def test_order_trip_start_and_destination_the_same(
-    client: AsyncClient
-) -> None:
-
+async def test_order_trip_start_and_destination_the_same(client: AsyncClient) -> None:
     body = {
         "user_id": 1,
         "x_start": 10,
