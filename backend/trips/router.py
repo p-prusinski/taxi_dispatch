@@ -11,6 +11,7 @@ from taxis.schemas import TaxiStatus
 
 from .models import Trip
 from .schemas import TripCreate, TripResponse
+from fastapi import BackgroundTasks
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,7 @@ async def send_request_to_taxi(trip: Trip, callback_url: str) -> None:
             "y_destination": trip.y_destination,
             "taxi_id": trip.taxi_id,
             "user_id": trip.user_id,
+            "trip_id": trip.pk,
             "waiting_time_minutes": trip.waiting_time_minutes,
             "travel_time_minutes": trip.travel_time_minutes,
         }
@@ -41,7 +43,9 @@ async def send_request_to_taxi(trip: Trip, callback_url: str) -> None:
 
 @router.post("", response_model=TripResponse)
 async def order_trip(
-    req: TripCreate, db_session: AsyncSession = Depends(get_db)
+    req: TripCreate,
+    background_tasks: BackgroundTasks,
+    db_session: AsyncSession = Depends(get_db),
 ) -> Trip:
     db_session.begin()
     nearest_taxi = await Taxi.get_nearest_taxi(db_session, req.x_start, req.y_start)
@@ -66,7 +70,7 @@ async def order_trip(
         )
         await db_session.commit()
 
-        await send_request_to_taxi(trip, nearest_taxi.callback_url)
+        background_tasks.add_task(send_request_to_taxi, trip, nearest_taxi.callback_url)
 
         return trip
     raise HTTPException(
