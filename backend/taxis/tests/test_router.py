@@ -1,8 +1,12 @@
 import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
+import datetime as dt
 
+from tests.test_utils import serialize_model
 from taxis.models import Taxi
+from taxis.schemas import TaxiStatus
+from dispatch_events.models import Event
 
 
 @pytest.mark.asyncio
@@ -28,7 +32,7 @@ async def test_get_taxis(db_session: AsyncSession, client: AsyncClient) -> None:
 
 
 @pytest.mark.asyncio
-async def test_register_taxi(db_session: AsyncSession, client: AsyncClient) -> None:
+async def test_register_taxi(client: AsyncClient) -> None:
     body = {"x": 90, "y": 90}
     response = await client.post("/taxis", json=body)
     assert response.status_code == 200, response.text
@@ -74,8 +78,46 @@ async def test_update_taxi_returns_404(client: AsyncClient) -> None:
 async def test_update_taxi_updates_status_and_location(
     db_session: AsyncSession, client: AsyncClient
 ) -> None:
-    await Taxi(x=0, y=0).create(db_session)
+    await Taxi(x=0, y=0, status=TaxiStatus.BUSY).create(db_session)
     body = {"x": 100, "y": 100}
     response = await client.patch("/taxis/1", json=body)
     assert response.status_code == 200, response.text
     assert response.json() == {"x": 100, "y": 100, "status": "AVAILABLE", "pk": 1}
+
+
+@pytest.mark.asyncio
+async def test_update_taxi_creates_event(
+    db_session: AsyncSession, client: AsyncClient, dt_mock: dt.datetime
+) -> None:
+    await Taxi(x=0, y=0, status=TaxiStatus.BUSY).create(db_session)
+    body = {"x": 100, "y": 100}
+    response = await client.patch("/taxis/1", json=body)
+    assert response.status_code == 200, response.text
+    event = (await Event.get_all(db_session))[0]
+    assert serialize_model(event) == {
+        "taxi_id": 1,
+        "trip_id": None,
+        "user_id": None,
+        "event_type": "client_delivery",
+        "created_at": dt_mock,
+        "pk": 1,
+    }
+
+
+@pytest.mark.asyncio
+async def test_create_taxi_creates_event(
+    db_session: AsyncSession, client: AsyncClient, dt_mock: dt.datetime
+) -> None:
+    body = {"x": 90, "y": 90}
+    response = await client.post("/taxis", json=body)
+    assert response.status_code == 200, response.text
+
+    event = (await Event.get_all(db_session))[0]
+    assert serialize_model(event) == {
+        "taxi_id": 1,
+        "trip_id": None,
+        "user_id": None,
+        "event_type": "taxi_register",
+        "created_at": dt_mock,
+        "pk": 1,
+    }

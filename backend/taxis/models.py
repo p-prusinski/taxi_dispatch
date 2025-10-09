@@ -8,6 +8,8 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_utils import generic_repr
 
 from .schemas import TaxiStatus
+from dispatch_events.models import add_event
+from dispatch_events.schemas import EventType
 
 
 @generic_repr
@@ -55,5 +57,8 @@ class Taxi(database.Base):
         taxi.status = TaxiStatus.AVAILABLE
         taxi.x = new_x
         taxi.y = new_y
+        await add_event(
+            db_session, event_type=EventType.CLIENT_DELIVERY, taxi_id=taxi.pk
+        )
         await db_session.commit()
         return taxi
